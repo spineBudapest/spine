@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spine — The city's book clubs, on one shelf</title>
+<meta name="description" content="Spine is a living calendar of book club events in Budapest and a directory of the city's reading communities.">
+
+<!-- Social share preview -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Spine">
+<meta property="og:title" content="Spine — The city's book clubs, on one shelf">
+<meta property="og:description" content="A living calendar of book club events in Budapest, across clubs and languages — plus a directory of the city's reading communities.">
+<meta property="og:url" content="https://spinebudapest.hu/">
+<meta property="og:image" content="https://spinebudapest.hu/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="hu_HU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Spine — The city's book clubs, on one shelf">
+<meta name="twitter:description" content="A living calendar of book club events in Budapest, across clubs and languages.">
+<meta name="twitter:image" content="https://spinebudapest.hu/og-image.png">
+
+<script type="application/ld+json" id="ld"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='9' width='5' height='19' rx='1.5' fill='%231c1a17'/%3E%3Crect x='11' y='5' width='5' height='23' rx='1.5' fill='%23a8442a'/%3E%3Crect x='18' y='11' width='5' height='17' rx='1.5' fill='%231c1a17'/%3E%3Crect x='25' y='7' width='3.5' height='21' rx='1.5' fill='%23c8b08f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fbfaf7;
+    --surface:#ffffff;
+    --ink:#1c1a17;
+    --muted:#6f6a61;
+    --line:#e7e2d8;
+    --accent:#a8442a;
+    --accent-soft:#f3e7e2;
+    --note-ink:#7a3320;
+    --btn-ink:#ffffff;
+    --header-bg:rgba(251,250,247,.85);
+    --code-bg:#faf8f4;
+    --radius:16px;
+    --maxw:1080px;
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Inter",system-ui,-apple-system,sans-serif;
+    --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.05);
+  }
+  html[data-theme="dark"]{
+    --bg:#15120d;
+    --surface:#1e1a14;
+    --ink:#f1ebdf;
+    --muted:#a99e8c;
+    --line:#332c22;
+    --accent:#e07a55;
+    --accent-soft:#3a261d;
+    --note-ink:#f0b59a;
+    --btn-ink:#15120d;
+    --header-bg:rgba(21,18,13,.85);
+    --code-bg:#13100b;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition:none!important;animation:none!important}
+  }
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    transition:background .3s ease,color .3s ease;
+  }
+  /* themed background: a faint shelf of book spines along the bottom */
+  body::before{
+    content:"";position:fixed;left:0;right:0;bottom:0;height:240px;z-index:-1;
+    pointer-events:none;background-image:var(--shelf-img);
+    background-repeat:repeat-x;background-position:bottom center;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;line-height:1.12;margin:0}
+
+  /* ---- Header / nav ---- */
+  header.site{position:sticky;top:0;z-index:30;background:var(--header-bg);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;font-size:18px;color:var(--ink)}
+  .brand:hover{text-decoration:none}
+  .brand .mark{width:30px;height:30px;flex:none}
+  .brand .mark .r-ink{fill:var(--ink)}
+  .brand .mark .r-acc{fill:var(--accent)}
+  .brand .mark .r-gold{fill:#c8b08f}
+  .nav-right{display:flex;align-items:center;gap:18px}
+  .nav-right nav{display:flex;gap:26px;font-size:15px}
+  .nav-right nav a{color:var(--muted);font-weight:500}
+  .nav-right nav a:hover{color:var(--ink);text-decoration:none}
+  .controls{display:flex;gap:8px}
+  .ctrl{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:999px;
+    padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);line-height:1;min-width:40px}
+  .ctrl:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:640px){.nav-right nav{display:none}}
+
+  /* ---- Hero ---- */
+  .hero{padding:84px 0 64px;position:relative;overflow:hidden}
+  .hero .eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:18px}
+  .hero h1{font-size:clamp(40px,6vw,68px);max-width:14ch}
+  .hero p.lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:52ch;margin:22px 0 32px}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;
+    font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;font-family:var(--sans)}
+  .btn-primary{background:var(--accent);color:var(--btn-ink)}
+  .btn-primary:hover{filter:brightness(.92);text-decoration:none}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink);text-decoration:none}
+  .hero .deco{position:absolute;right:-40px;top:40px;font-family:var(--serif);
+    font-size:280px;color:var(--accent-soft);line-height:1;user-select:none;z-index:-1}
+  @media(max-width:760px){.hero .deco{display:none}}
+
+  /* ---- Sections ---- */
+  section{padding:64px 0;border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:34px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(28px,3.6vw,38px)}
+  .sec-head p{color:var(--muted);margin:8px 0 0;max-width:48ch}
+  .kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+
+  /* ---- Events: stats + filters ---- */
+  .ev-stats{color:var(--muted);font-size:14px;margin-top:10px}
+  .ev-stats strong{color:var(--ink)}
+  .filters{display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 26px;align-items:center}
+  .filter-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .filter-group .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-right:2px}
+  .chip{font-size:13px;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--line);
+    background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s ease}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:var(--btn-ink)}
+  .month-divider{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--ink);
+    margin:30px 0 4px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .month-divider:first-child{margin-top:0}
+
+  /* ---- Events ---- */
+  .events{display:grid;gap:18px}
+  .event{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;box-shadow:var(--shadow);display:grid;
+    grid-template-columns:96px 1fr auto;gap:22px;align-items:center}
+  .event .date{text-align:center;border-right:1px solid var(--line);padding-right:20px}
+  .event .date .m{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:600}
+  .event .date .d{font-family:var(--serif);font-size:32px;font-weight:600;line-height:1}
+  .event .date .wd{font-size:12px;color:var(--muted)}
+  .event .body h3{font-size:20px;margin-bottom:6px}
+  .event .meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:14px;margin-top:8px}
+  .event .meta span{display:inline-flex;align-items:center;gap:6px}
+  .event .meta a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  .event .meta a:hover{color:var(--accent);text-decoration:underline}
+  .event .subactions{margin-top:10px}
+  .slink{font-size:13px;font-weight:600;color:var(--muted)}
+  .slink:hover{color:var(--accent)}
+  .event .book{font-style:italic;color:var(--ink)}
+  .tag{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent)}
+  .tag-type{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;
+    border:1px solid var(--line);color:var(--muted);background:transparent;margin-right:6px}
+  .tag-type.other{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .event .go{white-space:nowrap}
+  .event-actions{display:none;gap:8px;margin-top:12px}
+  body.admin-on .event-actions{display:flex}
+  .mini{font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-family:var(--sans)}
+  .mini:hover{border-color:var(--ink)}
+  .mini.del:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:640px){
+    .event{grid-template-columns:64px 1fr;gap:16px}
+    .event .go{grid-column:1 / -1}
+  }
+  .empty{color:var(--muted);font-style:italic;padding:30px 0}
+
+  /* ---- Club directory ---- */
+  .clubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+  .club{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .club .spine{width:38px;height:6px;border-radius:3px;background:var(--accent);margin-bottom:16px;opacity:.85}
+  .club h3{font-size:20px;margin-bottom:6px}
+  .club .lang{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+  .club p{margin:0 0 14px;color:var(--muted);font-size:15px}
+  .club a.more{font-weight:600;font-size:14px}
+
+  /* ---- Contact ---- */
+  .contact-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start}
+  @media(max-width:760px){.contact-grid{grid-template-columns:1fr}}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+  .field input,.field textarea,.field select{width:100%;padding:11px 13px;border:1px solid var(--line);
+    border-radius:10px;font-family:var(--sans);font-size:15px;background:var(--surface);color:var(--ink)}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+  .about-copy{max-width:62ch;font-size:17px;color:var(--ink)}
+
+  /* ---- Footer ---- */
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:14px}
+  footer .fl{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+  .admin-toggle{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:var(--sans);text-decoration:underline}
+
+  /* ---- Modals ---- */
+  .modal-bg{position:fixed;inset:0;background:rgba(10,8,6,.6);display:none;z-index:60;
+    align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);max-width:560px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .modal h3{font-size:24px;margin-bottom:4px}
+  .modal .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+  .note{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--note-ink);margin-top:16px}
+  textarea#exportBox{width:100%;height:200px;font-family:ui-monospace,monospace;font-size:12px;margin-top:12px;
+    border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--code-bg);color:var(--ink)}
+  .admin-banner{display:none;background:var(--ink);color:var(--bg);text-align:center;font-size:13px;padding:8px}
+  body.admin-on .admin-banner{display:block}
+  .admin-banner .admin-toggle{color:var(--bg)}
+</style>
+</head>
+<body>
+
+<div class="admin-banner"><span data-i18n-html="adminBanner"></span> <button class="admin-toggle" data-i18n="exit" onclick="toggleAdmin(false)"></button></div>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Spine">
+        <rect class="r-ink"  x="4"  y="9"  width="5" height="19" rx="1.5"/>
+        <rect class="r-acc"  x="11" y="5"  width="5" height="23" rx="1.5"/>
+        <rect class="r-ink"  x="18" y="11" width="5" height="17" rx="1.5"/>
+        <rect class="r-gold" x="25" y="7"  width="3.5" height="21" rx="1.5"/>
+      </svg>
+      Spine
+    </a>
+    <div class="nav-right">
+      <nav>
+        <a href="#events" data-i18n="navEvents"></a>
+        <a href="#clubs" data-i18n="navClubs"></a>
+        <a href="#about" data-i18n="navAbout"></a>
+        <a href="#contact" data-i18n="navContact"></a>
+      </nav>
+      <div class="controls">
+        <button class="ctrl" id="langBtn" onclick="toggleLang()" aria-label="Change language"></button>
+        <button class="ctrl" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle dark mode"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none">
+    <div class="wrap">
+      <div class="deco">&#10078;</div>
+      <p class="eyebrow" data-i18n="heroEyebrow"></p>
+      <h1 data-i18n="heroH1"></h1>
+      <p class="lede" data-i18n="heroLede"></p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#events" data-i18n="ctaEvents"></a>
+        <a class="btn btn-ghost" href="#clubs" data-i18n="ctaClubs"></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="kicker" data-i18n="evKicker"></p>
+          <h2 data-i18n="evH2"></h2>
+          <p data-i18n="evP"></p>
+          <p class="ev-stats" id="evStats"></p>
+        </div>
+        <button class="btn btn-ghost" id="addBtn" onclick="openForm()" style="display:none" data-i18n="addEvent"></button>
+      </div>
+      <div class="filters" id="eventFilters"></div>
+      <div class="events" id="eventList"></div>
+    </div>
+  </section>
+
+  <!-- CLUBS -->
+  <section id="clubs">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="kicker" data-i18n="clKicker"></p>
+          <h2 data-i18n="clH2"></h2>
+          <p data-i18n="clP"></p>
+        </div>
+      </div>
+      <div class="clubs" id="clubList"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head"><div><p class="kicker" data-i18n="abKicker"></p><h2 data-i18n="abH2"></h2></div></div>
+      <div class="about-copy">
+        <p data-i18n-html="abP1"></p>
+        <p data-i18n="abP2"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="sec-head"><div><p class="kicker" data-i18n="coKicker"></p><h2 data-i18n="coH2"></h2></div></div>
+      <div class="contact-grid">
+        <div class="panel">
+          <form onsubmit="return submitContact(event)">
+            <div class="field"><label for="cname" data-i18n="coName"></label><input id="cname" required></div>
+            <div class="field"><label for="cemail" data-i18n="coEmail"></label><input id="cemail" type="email" required></div>
+            <div class="field"><label for="cclub" data-i18n="coClub"></label><input id="cclub"></div>
+            <div class="field"><label for="cmsg" data-i18n="coMsg"></label><textarea id="cmsg" rows="4" required></textarea></div>
+            <button class="btn btn-primary" type="submit" data-i18n="coSend"></button>
+          </form>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:16px" data-i18n="coPrefer"></p>
+          <p style="font-size:18px;margin-top:18px"><a href="mailto:spinebudapest@gmail.com">spinebudapest@gmail.com</a></p>
+          <p style="color:var(--muted);font-size:14px;margin-top:24px" data-i18n="coCaption"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap fl">
+    <div><strong style="font-family:var(--serif);color:var(--ink)">Spine</strong> · © <span id="yr"></span> · <span data-i18n="footTagline"></span></div>
+    <button class="admin-toggle" data-i18n="organizerLogin" onclick="toggleAdmin(true)"></button>
+  </div>
+</footer>
+
+<!-- ADD/EDIT EVENT MODAL -->
+<div class="modal-bg" id="formModal">
+  <div class="modal">
+    <h3 id="formTitle"></h3>
+    <p class="sub" data-i18n="formReq"></p>
+    <form onsubmit="return saveEvent(event)">
+      <input type="hidden" id="f_id">
+      <div class="field"><label data-i18n="fClub"></label><input id="f_club" list="clubnames" required>
+        <datalist id="clubnames"></datalist></div>
+      <div class="row2">
+        <div class="field"><label data-i18n="fDate"></label><input id="f_date" type="date" required></div>
+        <div class="field"><label data-i18n="fTime"></label><input id="f_time" type="time"></div>
+      </div>
+      <div class="field"><label data-i18n="fBook"></label><input id="f_book" data-i18n-ph="fBookPh"></div>
+      <div class="field"><label data-i18n="fVenue"></label><input id="f_venue" data-i18n-ph="fVenuePh"></div>
+      <div class="row2">
+        <div class="field"><label data-i18n="fType"></label>
+          <select id="f_type">
+            <option value="Book club" data-i18n="optTBook"></option>
+            <option value="Other" data-i18n="optTOther"></option>
+          </select></div>
+        <div class="field"><label data-i18n="fLang"></label>
+          <select id="f_lang">
+            <option value="English" data-i18n="optEnglish"></option>
+            <option value="Hungarian" data-i18n="optHungarian"></option>
+            <option value="Bilingual" data-i18n="optBilingual"></option>
+            <option value="Chinese" data-i18n="optChinese"></option>
+            <option value="Other" data-i18n="optOther"></option>
+          </select></div>
+      </div>
+      <div class="field"><label data-i18n="fLink"></label><input id="f_link" data-i18n-ph="fLinkPh"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeForm()" data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-bg" id="exportModal">
+  <div class="modal">
+    <h3 data-i18n="exH3"></h3>
+    <p class="sub" data-i18n-html="exSub"></p>
+    <div class="note" data-i18n-html="exNote"></div>
+    <textarea id="exportBox" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="downloadJSON()" data-i18n="exDownload"></button>
+      <button class="btn btn-ghost" onclick="copyExport()" data-i18n="exCopy"></button>
+      <button class="btn btn-primary" onclick="closeModal('exportModal')" data-i18n="exDone"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   EDIT YOUR CONTENT HERE
+   -------------------------------------------------------------------------
+   SEED_EVENTS  – published events (lang values stay in English: they are
+                  keys, not display text — the site translates them).
+   CLUBS        – directory cards, with English + Hungarian descriptions.
+   ========================================================================= */
+
+const SEED_EVENTS = [
+  { id:"e1", club:"Közkincs English Book Club", date:"2026-07-09", time:"18:30",
+    book:"Tomorrow, and Tomorrow, and Tomorrow — Gabrielle Zevin",
+    venue:"Közkincs Könyvtár, District VIII", lang:"English", type:"Book club",
+    link:"https://www.meetup.com/" },
+  { id:"e2", club:"Budapest Silent Book Club", date:"2026-07-12", time:"16:00",
+    book:"Bring whatever you're reading",
+    venue:"Massolit Books & Café, District VII", lang:"English", type:"Book club",
+    link:"" },
+  { id:"e3", club:"Feminist Book Club", date:"2026-07-15", time:"19:00",
+    book:"The Will to Change — bell hooks",
+    venue:"Auróra, District VIII", lang:"English", type:"Book club",
+    link:"" },
+  { id:"e4", club:"Unquiet Reads Book Club", date:"2026-07-22", time:"18:00",
+    book:"Piranesi — Susanna Clarke",
+    venue:"TBA — check the group", lang:"English", type:"Book club",
+    link:"" },
+  { id:"e5", club:"Kortárs Kínai Könyvklub", date:"2026-07-26", time:"17:00",
+    book:"To Live (活着) — Yu Hua",
+    venue:"Confucius Institute, District VIII", lang:"Hungarian", type:"Book club",
+    link:"" },
+  { id:"e6", club:"Budapest Olvasósarok (Könyvklub)", date:"2026-07-30", time:"18:30",
+    book:"Magvető — havi választás",
+    venue:"Kávézó, District XIII", lang:"Hungarian", type:"Book club",
+    link:"" }
+];
+
+const CLUBS = [
+  { name:"Közkincs English Book Club", lang:"English",
+    desc_en:"A long-running English-language club reading contemporary and modern fiction in a relaxed, welcoming setting. Open to all reading levels.",
+    desc_hu:"Régóta működő angol nyelvű klub, amely kortárs és modern szépirodalmat olvas oldott, barátságos légkörben. Minden szinten várják az olvasókat.",
+    link:"" },
+  { name:"Unquiet Reads Book Club", lang:"English",
+    desc_en:"For readers drawn to the strange, the literary, and the genre-bending — speculative fiction, dark themes, and books that don't sit still.",
+    desc_hu:"Azoknak, akiket a különös, az irodalmi és a műfajokat feszegető írások vonzanak — spekulatív fikció, sötét témák és nyughatatlan könyvek.",
+    link:"" },
+  { name:"Feminist Book Club", lang:"English",
+    desc_en:"Discussion-driven sessions on feminist writing, theory, and fiction. A space for critical, supportive conversation.",
+    desc_hu:"Beszélgetésközpontú alkalmak feminista írásokról, elméletről és szépirodalomról. A kritikus, támogató párbeszéd tere.",
+    link:"" },
+  { name:"Budapest Silent Book Club", lang:"English / Any",
+    desc_en:"No assigned reading, no pressure. Bring your own book, read together in companionable silence, then chat over a drink.",
+    desc_hu:"Nincs kötelező olvasmány, nincs nyomás. Hozd a saját könyved, olvassatok együtt csendben, majd beszélgessetek egy ital mellett.",
+    link:"" },
+  { name:"Kortárs Kínai Könyvklub", lang:"Hungarian",
+    desc_en:"Contemporary Chinese literature in Hungarian translation — fiction, essays, and poetry from one of the world's great literary traditions.",
+    desc_hu:"Kortárs kínai irodalom magyar fordításban — próza, esszé és líra a világ egyik nagy irodalmi hagyományából.",
+    link:"" },
+  { name:"Budapest Olvasósarok (Könyvklub)", lang:"Hungarian",
+    desc_en:"A friendly Hungarian-language reading corner working through a varied monthly selection of new and beloved titles.",
+    desc_hu:"Barátságos magyar nyelvű olvasósarok, amely havonta változatos, új és kedvelt címeket dolgoz fel.",
+    link:"" }
+];
+
+/* ============================ TRANSLATIONS ============================ */
+const T = {
+  en:{
+    title:"Spine — The city's book clubs, on one shelf",
+    navEvents:"Events", navClubs:"Clubs", navAbout:"About", navContact:"Contact",
+    heroEyebrow:"Spine · Budapest",
+    heroH1:"The city's book clubs, on one shelf.",
+    heroLede:"A living calendar of book club meetups across Budapest — from English-language discussions to silent reading nights — plus a directory of the clubs behind them.",
+    ctaEvents:"See upcoming events", ctaClubs:"Browse the clubs",
+    evKicker:"Calendar", evH2:"Upcoming events",
+    evP:"Meetups sorted by date. Past events drop off automatically.",
+    addEvent:"+ Add event",
+    clKicker:"Directory", clH2:"The clubs",
+    clP:"The reading communities meeting around Budapest. Non-exhaustive and growing.",
+    clMore:"Learn more →", clSee:"See events →",
+    abKicker:"About", abH2:"Why this exists",
+    abP1:"This site started with <strong>Közkincs English Book Club</strong>, which has been meeting for years. Along the way it became clear Budapest has a whole constellation of reading groups — feminist, contemporary Chinese literature, silent reading, and more — each with its own rhythm and crowd.",
+    abP2:"The goal here is simple: one place to find out what's on, whatever you like to read and whichever language you read it in. Book clubs are the heart of it — but kindred gatherings like poetry circles, film clubs, and writing groups are welcome here too. If you run one and want to be listed, get in touch below.",
+    coKicker:"Get in touch", coH2:"List your club or say hello",
+    coName:"Your name", coEmail:"Email", coClub:"Club name (if listing one)", coMsg:"Message", coSend:"Send message",
+    coPrefer:"Prefer email? Reach out directly and we'll add your club to the directory and calendar.",
+    coCaption:"The form opens a pre-filled email to spinebudapest@gmail.com — no server required.",
+    footTagline:"The city's book clubs, on one shelf",
+    organizerLogin:"Organizer login",
+    adminBanner:"Admin mode on — you can add, edit, and delete events. Changes are saved in this browser only. Use <strong>Export</strong> to publish them.",
+    exit:"Exit", exportPublish:"Export / publish events",
+    empty:"No upcoming events listed yet. Check back soon.",
+    edit:"Edit", del:"Delete", confirmDel:"Delete this event?",
+    formAdd:"Add event", formEdit:"Edit event", formReq:"Fields marked * are required.",
+    fClub:"Club *", fDate:"Date *", fTime:"Time",
+    fBook:"Book (title — author)", fBookPh:"e.g. Klara and the Sun — Kazuo Ishiguro",
+    fVenue:"Venue / location", fVenuePh:"e.g. Massolit Books & Café",
+    fType:"Type", fLang:"Language", fLink:"Original post link (Facebook / Meetup / Eventbrite…)", fLinkPh:"https://facebook.com/events/...",
+    cancel:"Cancel", save:"Save event",
+    optEnglish:"English", optHungarian:"Hungarian", optBilingual:"Bilingual", optChinese:"Chinese", optOther:"Other",
+    optTBook:"Book club", optTOther:"Other", tvBook:"Book club", tvOther:"Other",
+    exH3:"Publish your changes",
+    exSub:"Your edits are saved in this browser only. To make them visible to everyone, copy the code below and paste it into the file, replacing the existing <code>SEED_EVENTS</code> array.",
+    exNote:"Find <strong>const SEED_EVENTS = [ ... ];</strong> near the bottom of the HTML file and replace it with this. Then re-upload the file to your host.",
+    exDownload:"Download as .json", exCopy:"Copy code", exDone:"Done",
+    lkFacebook:"View on Facebook", lkMeetup:"View on Meetup", lkEventbrite:"View on Eventbrite",
+    lkInstagram:"View on Instagram", lkLuma:"View on Luma", lkDefault:"Event page / RSVP",
+    lvEnglish:"English", lvHungarian:"Hungarian", lvBilingual:"Bilingual", lvChinese:"Chinese", lvOther:"Other", lvEnglishAny:"English / Any",
+    upcoming:"upcoming", next:"Next", fltAll:"All", calAdd:"Add to calendar",
+    emptyFilter:"No events match this filter.",
+    months:["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"],
+    monthsFull:["January","February","March","April","May","June","July","August","September","October","November","December"],
+    wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+  },
+  hu:{
+    title:"Spine — A város könyvklubjai, egy polcon",
+    navEvents:"Események", navClubs:"Klubok", navAbout:"Névjegy", navContact:"Kapcsolat",
+    heroEyebrow:"Spine · Budapest",
+    heroH1:"A város könyvklubjai, egy polcon.",
+    heroLede:"Élő eseménynaptár Budapest könyvklubjairól — az angol nyelvű beszélgetésektől a csendes olvasóestekig —, a klubok címtárával együtt.",
+    ctaEvents:"Közelgő események", ctaClubs:"Klubok böngészése",
+    evKicker:"Naptár", evH2:"Közelgő események",
+    evP:"Az események dátum szerint rendezve. A korábbiak automatikusan lekerülnek.",
+    addEvent:"+ Esemény hozzáadása",
+    clKicker:"Címtár", clH2:"A klubok",
+    clP:"Budapest olvasóközösségei. Nem teljes lista, folyamatosan bővül.",
+    clMore:"Bővebben →", clSee:"Események →",
+    abKicker:"Névjegy", abH2:"Miért van erre szükség",
+    abP1:"Ez az oldal a <strong>Közkincs English Book Clubbal</strong> indult, amely évek óta rendszeresen összejön. Útközben kiderült, hogy Budapesten az olvasókörök egész galaxisa létezik — feminista, kortárs kínai irodalmi, csendes olvasó és még sok más —, mindegyik a maga ritmusával és közönségével.",
+    abP2:"A cél egyszerű: egyetlen hely, ahol megtudhatod, mi van műsoron — bármit is szeretsz olvasni, és bármilyen nyelven teszed. A könyvklubok állnak a középpontban — de a rokon összejövetelek, mint a verskörök, filmklubok és íróműhelyek, is helyet kapnak itt. Ha ilyet szervezel és szeretnél felkerülni, lépj velünk kapcsolatba lent.",
+    coKicker:"Kapcsolat", coH2:"Regisztráld a klubod, vagy köszönj be",
+    coName:"Neved", coEmail:"E-mail", coClub:"Klub neve (ha regisztrálsz)", coMsg:"Üzenet", coSend:"Üzenet küldése",
+    coPrefer:"Inkább e-mail? Írj közvetlenül, és felvesszük a klubod a címtárba és a naptárba.",
+    coCaption:"Az űrlap egy előre kitöltött e-mailt nyit meg a spinebudapest@gmail.com címre — nincs szükség szerverre.",
+    footTagline:"A város könyvklubjai, egy polcon",
+    organizerLogin:"Szervezői belépés",
+    adminBanner:"Szerkesztő mód bekapcsolva — eseményeket adhatsz hozzá, szerkeszthetsz és törölhetsz. A változások csak ebben a böngészőben mentődnek. A közzétételhez használd az <strong>Exportot</strong>.",
+    exit:"Kilépés", exportPublish:"Események exportálása / közzététel",
+    empty:"Még nincsenek közelgő események. Nézz vissza hamarosan.",
+    edit:"Szerkesztés", del:"Törlés", confirmDel:"Törlöd ezt az eseményt?",
+    formAdd:"Esemény hozzáadása", formEdit:"Esemény szerkesztése", formReq:"A *-gal jelölt mezők kötelezők.",
+    fClub:"Klub *", fDate:"Dátum *", fTime:"Időpont",
+    fBook:"Könyv (cím — szerző)", fBookPh:"pl. Klara és a Nap — Kazuo Ishiguro",
+    fVenue:"Helyszín", fVenuePh:"pl. Massolit Books & Café",
+    fType:"Típus", fLang:"Nyelv", fLink:"Eredeti poszt linkje (Facebook / Meetup / Eventbrite…)", fLinkPh:"https://facebook.com/events/...",
+    cancel:"Mégse", save:"Esemény mentése",
+    optEnglish:"Angol", optHungarian:"Magyar", optBilingual:"Kétnyelvű", optChinese:"Kínai", optOther:"Egyéb",
+    optTBook:"Könyvklub", optTOther:"Egyéb", tvBook:"Könyvklub", tvOther:"Egyéb",
+    exH3:"Változások közzététele",
+    exSub:"A módosításaid csak ebben a böngészőben mentődnek. Ahhoz, hogy mindenki lássa őket, másold ki az alábbi kódot, és illeszd be a fájlba a meglévő <code>SEED_EVENTS</code> tömb helyére.",
+    exNote:"Keresd meg a <strong>const SEED_EVENTS = [ ... ];</strong> részt a HTML-fájl alján, és cseréld ki erre. Majd töltsd fel újra a fájlt a tárhelyre.",
+    exDownload:"Letöltés .json-ként", exCopy:"Kód másolása", exDone:"Kész",
+    lkFacebook:"Megnézés a Facebookon", lkMeetup:"Megnézés a Meetupon", lkEventbrite:"Megnézés az Eventbrite-on",
+    lkInstagram:"Megnézés az Instagramon", lkLuma:"Megnézés a Lumán", lkDefault:"Esemény / Jelentkezés",
+    lvEnglish:"Angol", lvHungarian:"Magyar", lvBilingual:"Kétnyelvű", lvChinese:"Kínai", lvOther:"Egyéb", lvEnglishAny:"Angol / Bármi",
+    upcoming:"közelgő", next:"Következő", fltAll:"Mind", calAdd:"Naptárhoz adás",
+    emptyFilter:"Nincs a szűrőnek megfelelő esemény.",
+    months:["JAN","FEB","MÁR","ÁPR","MÁJ","JÚN","JÚL","AUG","SZE","OKT","NOV","DEC"],
+    monthsFull:["január","február","március","április","május","június","július","augusztus","szeptember","október","november","december"],
+    wd:["Vas","Hét","Ked","Sze","Csü","Pén","Szo"]
+  }
+};
+
+const LANGMAP={"English":"lvEnglish","Hungarian":"lvHungarian","Bilingual":"lvBilingual","Chinese":"lvChinese","Other":"lvOther","English / Any":"lvEnglishAny"};
+const TYPEMAP={"Book club":"tvBook","Other":"tvOther"};
+
+/* ============================ STATE ============================ */
+const STORE_KEY = "bp_bookclub_events_v1";
+function savedPref(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+const state = {
+  // Manual choice (saved) wins; otherwise detect the visitor's browser language.
+  lang: (function(){
+    const s=savedPref("spine_lang"); if(s) return s;
+    try{
+      const langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||""];
+      return langs.some(l=>(l||"").toLowerCase().startsWith("hu")) ? "hu" : "en";
+    }catch(e){ return "en"; }
+  })(),
+  // Manual choice (saved) wins; otherwise follow the OS dark-mode setting.
+  theme: (function(){
+    const s=savedPref("spine_theme"); if(s) return s;
+    try{ return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light"; }
+    catch(e){ return "light"; }
+  })()
+};
+let events = loadEvents();
+
+function loadEvents(){
+  try{ const s=localStorage.getItem(STORE_KEY); if(s) return JSON.parse(s); }catch(e){}
+  return JSON.parse(JSON.stringify(SEED_EVENTS));
+}
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(events)); }catch(e){} }
+
+function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+/* ============================ THEME ============================ */
+function shelfURI(fill, op, lineOp){
+  const bars=[[8,18,150],[30,12,185],[46,20,120],[70,14,165],[88,10,140],[102,18,190],[126,12,110],[142,14,160]];
+  const rects=bars.map(([x,w,h])=>`<rect x='${x}' y='${238-h}' width='${w}' height='${h}' rx='3' fill='${fill}' fill-opacity='${op}'/>`).join("");
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='160' height='240'>${rects}<rect x='0' y='236' width='160' height='3' fill='${fill}' fill-opacity='${lineOp}'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+function applyShelf(){
+  const uri = state.theme==="dark"
+    ? shelfURI("#d8bfa0",0.05,0.10)
+    : shelfURI("#6b4f3a",0.06,0.12);
+  document.documentElement.style.setProperty("--shelf-img", uri);
+}
+function setTheme(t, persist){
+  state.theme=t;
+  if(persist){ try{ localStorage.setItem("spine_theme",t); }catch(e){} }
+  document.documentElement.setAttribute("data-theme", t);
+  const b=document.getElementById("themeBtn");
+  if(b) b.textContent = t==="dark" ? "☀" : "☾";
+  applyShelf();
+}
+function toggleTheme(){ setTheme(state.theme==="dark"?"light":"dark", true); }
+
+/* ============================ LANGUAGE ============================ */
+function setLang(lang, persist){
+  state.lang=lang;
+  if(persist){ try{ localStorage.setItem("spine_lang",lang); }catch(e){} }
+  const d=T[lang];
+  document.documentElement.lang=lang;
+  document.title=d.title;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ const k=el.dataset.i18n; if(d[k]!=null) el.textContent=d[k]; });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ const k=el.dataset.i18nHtml; if(d[k]!=null) el.innerHTML=d[k]; });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ const k=el.dataset.i18nPh; if(d[k]!=null) el.placeholder=d[k]; });
+  const lb=document.getElementById("langBtn"); if(lb) lb.textContent = lang==="en" ? "HU" : "EN";
+  renderClubs(); renderEvents();
+}
+function toggleLang(){ setLang(state.lang==="en"?"hu":"en", true); }
+
+function langLabel(v){ const k=LANGMAP[v]; return k?T[state.lang][k]:v; }
+function typeLabel(v){ const k=TYPEMAP[v||"Book club"]; return k?T[state.lang][k]:v; }
+function linkLabel(url){
+  const d=T[state.lang];
+  if(!url) return "";
+  if(/facebook\.com|fb\.me|fb\.com/i.test(url)) return d.lkFacebook;
+  if(/meetup\.com/i.test(url))    return d.lkMeetup;
+  if(/eventbrite\./i.test(url))   return d.lkEventbrite;
+  if(/instagram\.com/i.test(url)) return d.lkInstagram;
+  if(/lu\.ma|luma/i.test(url))    return d.lkLuma;
+  return d.lkDefault;
+}
+
+/* ============================ RENDER ============================ */
+/* ---- filters ---- */
+const filter={type:"all", lang:"all"};
+function setFilter(k,v){ filter[k]=v; renderEvents(); }
+
+/* ---- derived per-event links ---- */
+function pad(n){return String(n).padStart(2,"0");}
+function gcalLink(e){
+  const title=(e.book && (e.type||"Book club")!=="Other") ? `${e.club}: ${e.book}` : e.club;
+  let dates;
+  if(e.time){
+    const s=new Date(`${e.date}T${e.time}:00`);
+    const en=new Date(s.getTime()+2*3600*1000);
+    const f=x=>`${x.getFullYear()}${pad(x.getMonth()+1)}${pad(x.getDate())}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
+    dates=`${f(s)}/${f(en)}`;
+  }else{
+    const start=e.date.replace(/-/g,"");
+    const nd=new Date(`${e.date}T00:00`); nd.setDate(nd.getDate()+1);
+    dates=`${start}/${nd.getFullYear()}${pad(nd.getMonth()+1)}${pad(nd.getDate())}`;
+  }
+  const p=new URLSearchParams({text:title, dates, details:[e.book,e.link].filter(Boolean).join("\n"), location:e.venue||""});
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&"+p.toString();
+}
+function mapsLink(v){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(v+", Budapest"); }
+function hasMap(v){ return v && !/\btba\b|\btbd\b/i.test(v); }
+
+function monthHeader(dt){ const m=T[state.lang].monthsFull[dt.getMonth()], y=dt.getFullYear(); return state.lang==="hu" ? `${y}. ${m}` : `${m} ${y}`; }
+
+/* ---- structured data for search engines ---- */
+function buildJsonLd(list){
+  const data=list.map(e=>{
+    const o={
+      "@context":"https://schema.org","@type":"Event",
+      "name":(e.book && (e.type||"Book club")!=="Other") ? `${e.club}: ${e.book}` : e.club,
+      "startDate": e.time ? `${e.date}T${e.time}` : e.date,
+      "eventStatus":"https://schema.org/EventScheduled",
+      "eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode",
+      "location":{"@type":"Place","name":e.venue||"Budapest","address":{"@type":"PostalAddress","addressLocality":"Budapest","addressCountry":"HU"}},
+      "organizer":{"@type":"Organization","name":e.club},
+      "inLanguage":e.lang
+    };
+    if(e.link) o.url=e.link;
+    return o;
+  });
+  const el=document.getElementById("ld"); if(el) el.textContent=JSON.stringify(data);
+}
+
+/* ---- filter chips ---- */
+function renderFilters(upcomingAll){
+  const d=T[state.lang];
+  const types=[["all",d.fltAll],["Book club",d.tvBook],["Other",d.tvOther]];
+  const typeChips=types.map(([v,lab])=>`<button class="chip${filter.type===v?" active":""}" onclick="setFilter('type','${v}')">${esc(lab)}</button>`).join("");
+  const langs=[...new Set(upcomingAll.map(e=>e.lang))];
+  let langChips=`<button class="chip${filter.lang==="all"?" active":""}" onclick="setFilter('lang','all')">${esc(d.fltAll)}</button>`;
+  langChips+=langs.map(l=>`<button class="chip${filter.lang===l?" active":""}" onclick="setFilter('lang','${esc(l)}')">${esc(langLabel(l))}</button>`).join("");
+  document.getElementById("eventFilters").innerHTML =
+    `<div class="filter-group"><span class="lbl">${esc(d.fType)}</span>${typeChips}</div>`+
+    `<div class="filter-group"><span class="lbl">${esc(d.fLang)}</span>${langChips}</div>`;
+}
+
+function renderEvents(){
+  const d=T[state.lang];
+  const list=document.getElementById("eventList");
+  const today=new Date(); today.setHours(0,0,0,0);
+  const upcomingAll=events
+    .filter(e=> new Date(e.date+"T23:59")>=today)
+    .sort((a,b)=> (a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
+
+  // stats line + structured data are based on ALL upcoming events, not the filtered view
+  const stats=document.getElementById("evStats");
+  if(!upcomingAll.length){ stats.innerHTML=""; }
+  else{
+    const n=upcomingAll[0], nd=new Date(n.date+"T00:00");
+    const dstr = state.lang==="hu" ? `${d.monthsFull[nd.getMonth()]} ${nd.getDate()}.` : `${d.monthsFull[nd.getMonth()]} ${nd.getDate()}`;
+    stats.innerHTML=`<strong>${upcomingAll.length}</strong> ${esc(d.upcoming)} · ${esc(d.next)}: <strong>${esc(dstr)}</strong> — ${esc(n.club)}`;
+  }
+  buildJsonLd(upcomingAll);
+  renderFilters(upcomingAll);
+
+  const shown=upcomingAll.filter(e=>
+    (filter.type==="all" || (e.type||"Book club")===filter.type) &&
+    (filter.lang==="all" || e.lang===filter.lang));
+
+  if(!shown.length){
+    list.innerHTML=`<p class="empty">${esc(upcomingAll.length?d.emptyFilter:d.empty)}</p>`;
+    return;
+  }
+
+  let html="", lastKey="";
+  for(const e of shown){
+    const dt=new Date(e.date+"T00:00");
+    const key=dt.getFullYear()+"-"+dt.getMonth();
+    if(key!==lastKey){ html+=`<div class="month-divider">${esc(monthHeader(dt))}</div>`; lastKey=key; }
+    const time=e.time?` · ${e.time}`:"";
+    const linkBtn=e.link?`<a class="btn btn-ghost go" href="${esc(e.link)}" target="_blank" rel="noopener">${esc(linkLabel(e.link))} ↗</a>`:"";
+    const venue=e.venue ? (hasMap(e.venue)
+      ? `<a href="${esc(mapsLink(e.venue))}" target="_blank" rel="noopener">📍 ${esc(e.venue)}</a>`
+      : `<span>📍 ${esc(e.venue)}</span>`) : "";
+    html+=`<div class="event">
+      <div class="date">
+        <div class="m">${d.months[dt.getMonth()]}</div>
+        <div class="d">${dt.getDate()}</div>
+        <div class="wd">${d.wd[dt.getDay()]}</div>
+      </div>
+      <div class="body">
+        <span class="tag-type${(e.type||"Book club")==="Other"?" other":""}">${esc(typeLabel(e.type))}</span>
+        <span class="tag">${esc(langLabel(e.lang))}</span>
+        <h3>${esc(e.club)}</h3>
+        ${e.book?`<div class="book">${esc(e.book)}</div>`:""}
+        <div class="meta">
+          <span>🕒 ${esc(e.date)}${time}</span>
+          ${venue}
+        </div>
+        <div class="subactions"><a class="slink" href="${esc(gcalLink(e))}" target="_blank" rel="noopener">📅 ${esc(d.calAdd)}</a></div>
+        <div class="event-actions">
+          <button class="mini" onclick="openForm('${e.id}')">${esc(d.edit)}</button>
+          <button class="mini del" onclick="deleteEvent('${e.id}')">${esc(d.del)}</button>
+        </div>
+      </div>
+      ${linkBtn}
+    </div>`;
+  }
+  list.innerHTML=html;
+}
+
+function renderClubs(){
+  const d=T[state.lang];
+  document.getElementById("clubList").innerHTML = CLUBS.map(c=>{
+    const desc = state.lang==="en" ? c.desc_en : c.desc_hu;
+    return `<div class="club">
+      <div class="spine"></div>
+      <h3>${esc(c.name)}</h3>
+      <div class="lang">${esc(langLabel(c.lang))}</div>
+      <p>${esc(desc)}</p>
+      ${c.link?`<a class="more" href="${esc(c.link)}" target="_blank" rel="noopener">${esc(d.clMore)}</a>`:`<a class="more" href="#events">${esc(d.clSee)}</a>`}
+    </div>`;
+  }).join("");
+  document.getElementById("clubnames").innerHTML = CLUBS.map(c=>`<option value="${esc(c.name)}">`).join("");
+}
+
+/* ============================ ADMIN ============================ */
+function toggleAdmin(on){
+  document.body.classList.toggle("admin-on", on);
+  document.getElementById("addBtn").style.display = on ? "inline-flex" : "none";
+  if(on && !document.getElementById("exportBtn")){
+    const b=document.createElement("button");
+    b.id="exportBtn"; b.className="admin-toggle"; b.setAttribute("data-i18n","exportPublish");
+    b.textContent=T[state.lang].exportPublish; b.onclick=openExport; b.style.marginLeft="14px";
+    document.querySelector("footer .fl").appendChild(b);
+  }
+}
+
+function openForm(id){
+  const d=T[state.lang];
+  const ev = id ? events.find(e=>e.id===id) : null;
+  document.getElementById("formTitle").textContent = ev ? d.formEdit : d.formAdd;
+  document.getElementById("f_id").value   = ev ? ev.id : "";
+  document.getElementById("f_club").value = ev ? ev.club : "";
+  document.getElementById("f_date").value = ev ? ev.date : "";
+  document.getElementById("f_time").value = ev ? ev.time : "";
+  document.getElementById("f_book").value = ev ? ev.book : "";
+  document.getElementById("f_venue").value= ev ? ev.venue : "";
+  document.getElementById("f_type").value = ev ? (ev.type||"Book club") : "Book club";
+  document.getElementById("f_lang").value = ev ? (ev.lang||"English") : "English";
+  document.getElementById("f_link").value = ev ? ev.link : "";
+  document.getElementById("formModal").classList.add("open");
+}
+function closeForm(){ document.getElementById("formModal").classList.remove("open"); }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+
+function saveEvent(e){
+  e.preventDefault();
+  const id = document.getElementById("f_id").value;
+  const data = {
+    id: id || ("e"+Date.now()),
+    club: document.getElementById("f_club").value.trim(),
+    date: document.getElementById("f_date").value,
+    time: document.getElementById("f_time").value,
+    book: document.getElementById("f_book").value.trim(),
+    venue:document.getElementById("f_venue").value.trim(),
+    lang: document.getElementById("f_lang").value,
+    type: document.getElementById("f_type").value,
+    link: document.getElementById("f_link").value.trim()
+  };
+  if(id){ const i=events.findIndex(x=>x.id===id); events[i]=data; } else { events.push(data); }
+  persist(); renderEvents(); closeForm();
+  return false;
+}
+function deleteEvent(id){
+  if(!confirm(T[state.lang].confirmDel)) return;
+  events = events.filter(e=>e.id!==id);
+  persist(); renderEvents();
+}
+
+/* ============================ EXPORT ============================ */
+function buildExport(){
+  const lines = events.map(e=>
+`  { id:${JSON.stringify(e.id)}, club:${JSON.stringify(e.club)}, date:${JSON.stringify(e.date)}, time:${JSON.stringify(e.time)},
+    book:${JSON.stringify(e.book)},
+    venue:${JSON.stringify(e.venue)}, lang:${JSON.stringify(e.lang)}, type:${JSON.stringify(e.type||"Book club")},
+    link:${JSON.stringify(e.link)} }`);
+  return "const SEED_EVENTS = [\n"+lines.join(",\n")+"\n];";
+}
+function openExport(){
+  document.getElementById("exportBox").value = buildExport();
+  document.getElementById("exportModal").classList.add("open");
+}
+function copyExport(){
+  const t=document.getElementById("exportBox"); t.select();
+  navigator.clipboard.writeText(t.value).then(()=>{},()=>{document.execCommand("copy");});
+}
+function downloadJSON(){
+  const blob=new Blob([JSON.stringify(events,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="events.json"; a.click();
+}
+
+/* ============================ CONTACT ============================ */
+function submitContact(e){
+  e.preventDefault();
+  const to="spinebudapest@gmail.com";
+  const subj=encodeURIComponent("Spine — message from "+document.getElementById("cname").value);
+  const body=encodeURIComponent(
+    "Name: "+document.getElementById("cname").value+"\n"+
+    "Email: "+document.getElementById("cemail").value+"\n"+
+    "Club: "+document.getElementById("cclub").value+"\n\n"+
+    document.getElementById("cmsg").value);
+  window.location.href=`mailto:${to}?subject=${subj}&body=${body}`;
+  return false;
+}
+
+/* ============================ INIT ============================ */
+document.getElementById("yr").textContent=new Date().getFullYear();
+// Apply detected/saved values. Don't persist here — only an explicit toggle saves a choice,
+// so visitors keep following their browser/OS until they pick something themselves.
+setTheme(state.theme, false);
+setLang(state.lang, false);
+
+// Keep following the OS dark-mode setting live, until the visitor manually toggles.
+try{
+  if(window.matchMedia){
+    const mq=window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange=e=>{ if(!savedPref("spine_theme")) setTheme(e.matches?"dark":"light", false); };
+    if(mq.addEventListener) mq.addEventListener("change", onChange);
+    else if(mq.addListener) mq.addListener(onChange); // older browsers
+  }
+}catch(e){}
+</script>
+</body>
+</html>
