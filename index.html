@@ -399,6 +399,14 @@
    CLUBS        – directory cards, with English + Hungarian descriptions.
    ========================================================================= */
 
+/* ── Google Sheet integration (optional) ───────────────────────────────────
+   Paste your Google Sheet "Publish to web → CSV" link between the quotes below
+   to load events live from the spreadsheet. Leave it "" to use the built-in
+   SEED_EVENTS list. The sheet's first row must be headers:
+   Date, Time, Club, Book, Venue, Language, Type, Link, Status
+   (Only rows whose Status is "published" or blank are shown.)                */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR016AyUYE2FUXLuM7TxVVHpgE5fN5FAEUSLRfTVpyS0IPS-AZ-HoGe18sd_mS3Qm_knJ2XUaGs-4Z8/pub?gid=0&single=true&output=csv";
+
 const SEED_EVENTS = [
   { id:"e1", club:"Közkincs English Book Club", date:"2026-07-09", time:"18:30",
     book:"Tomorrow, and Tomorrow, and Tomorrow — Gabrielle Zevin",
@@ -580,6 +588,64 @@ function loadEvents(){
   return JSON.parse(JSON.stringify(SEED_EVENTS));
 }
 function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(events)); }catch(e){} }
+
+/* ── Live events from a published Google Sheet (CSV) ── */
+function parseCSV(text){
+  const rows=[]; let row=[], field="", inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i++; } else inQ=false; }
+      else field+=c;
+    }else{
+      if(c==='"') inQ=true;
+      else if(c===",") { row.push(field); field=""; }
+      else if(c==="\n"){ row.push(field); rows.push(row); row=[]; field=""; }
+      else if(c!=="\r") field+=c;
+    }
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+function normDate(s){
+  s=(s||"").trim();
+  let m=s.match(/^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})$/);      // YYYY-MM-DD / YYYY.MM.DD
+  if(m) return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);                   // M/D/YYYY (common CSV export)
+  if(m) return `${m[3]}-${String(m[1]).padStart(2,"0")}-${String(m[2]).padStart(2,"0")}`;
+  return s;
+}
+function normTime(s){
+  s=(s||"").trim(); if(!s) return "";
+  const m=s.match(/^(\d{1,2}):(\d{2})/);
+  return m ? `${String(m[1]).padStart(2,"0")}:${m[2]}` : s;
+}
+async function loadFromSheet(){
+  if(!SHEET_CSV_URL) return;
+  try{
+    const res=await fetch(SHEET_CSV_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const rows=parseCSV(await res.text()).filter(r=>r.some(c=>(c||"").trim()!==""));
+    if(rows.length<2) return;
+    const head=rows[0].map(h=>h.trim().toLowerCase());
+    const col=name=>head.indexOf(name);
+    const iDate=col("date"),iTime=col("time"),iClub=col("club"),iBook=col("book"),
+          iVenue=col("venue"),iLang=col("language"),iType=col("type"),iLink=col("link"),iStatus=col("status");
+    const out=[];
+    for(let r=1;r<rows.length;r++){
+      const row=rows[r];
+      const get=i=> (i>=0 && i<row.length) ? (row[i]||"").trim() : "";
+      const status=get(iStatus).toLowerCase();
+      if(status && status!=="published") continue;      // skip pending / draft / hidden rows
+      const club=get(iClub), date=normDate(get(iDate));
+      if(!club || !date) continue;                        // skip incomplete rows
+      out.push({ id:"r"+r, club, date, time:normTime(get(iTime)),
+        book:get(iBook), venue:get(iVenue),
+        lang:get(iLang)||"English", type:get(iType)||"Book club", link:get(iLink) });
+    }
+    if(out.length){ events=out; renderEvents(); }         // sheet is the source of truth when configured
+  }catch(e){ console.warn("Spine: could not load events from the sheet — keeping built-in list.", e.message); }
+}
 
 function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
@@ -880,6 +946,9 @@ try{
     else if(mq.addListener) mq.addListener(onChange); // older browsers
   }
 }catch(e){}
+
+// Load live events from the Google Sheet, if one is configured above.
+loadFromSheet();
 </script>
 </body>
 </html>
